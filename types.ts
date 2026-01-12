@@ -19,6 +19,22 @@ export interface Party {
   contact: string;
 }
 
+export interface LineItem {
+  qty: number;
+  pieces: number;
+  package_type: string;
+  handling_unit_type: string;
+  weight_lbs: number;
+  hazmat: boolean;
+  non_stackable: boolean;
+  dimensions_in: string;
+  description: string;
+  nmfc_code: string;
+  nmfc_sub: string;
+  freight_class: string;
+  line_total_weight_lbs: number;
+}
+
 export interface BOLField<T> {
   value: T;
   confidence: number; // 0 to 1
@@ -45,6 +61,7 @@ export interface BOLData {
   containerNumbers: BOLField<string[]>;
   sealNumbers: BOLField<string[]>;
   descriptionGoods: BOLField<string>;
+  lineItems: BOLField<LineItem[]>;
   hsCode: BOLField<string>;
   grossWeight: BOLField<string>;
   netWeight: BOLField<string>;
