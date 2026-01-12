@@ -66,7 +66,7 @@ const BOL_SCHEMA = {
     numPackages: { type: Type.STRING },
     issueDate: { type: Type.STRING }
   },
-  required: ["type", "blNumber", "shipper", "consignee"]
+  required: ["type", "blNumber", "proNumber", "shipper", "consignee"]
 };
 
 const emptyParty = (): Party => ({

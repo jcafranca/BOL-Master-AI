@@ -1,5 +1,5 @@
 {
-  "name": "Copy of BOL Master AI",
+  "name": "BOL Master AI",
   "description": "Enterprise-grade Bill of Lading detector and parser using Gemini AI for high-accuracy OCR and logistics field extraction.",
   "requestFramePermissions": [
     "camera"

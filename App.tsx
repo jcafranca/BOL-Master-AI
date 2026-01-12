@@ -1,22 +1,40 @@
 
 import React, { useState, useEffect } from 'react';
-import { ViewState, BOLData, HistoryItem } from './types';
+import { ViewState, BOLData, HistoryItem, AIConfig, AIProvider, ProviderProfile } from './types';
 import Navigation from './components/Navigation';
 import Dashboard from './components/Dashboard';
 import Scanner from './components/Scanner';
 import BOLEditor from './components/BOLEditor';
 import History from './components/History';
+import Settings from './components/Settings';
 import { Info, Shield, Layers, Workflow, Database, Cpu } from 'lucide-react';
+
+const DEFAULT_GEMINI_PROFILE: ProviderProfile = {
+  id: 'default-gemini',
+  name: 'Gemini Flash (Default)',
+  provider: AIProvider.GEMINI,
+  model: 'gemini-3-flash-preview',
+  endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent',
+  isDefault: true
+};
 
 const App: React.FC = () => {
   const [currentView, setView] = useState<ViewState>('dashboard');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [activeBOL, setActiveBOL] = useState<BOLData | null>(null);
+  const [aiConfig, setAiConfig] = useState<AIConfig>({
+    activeProfileId: 'default-gemini',
+    profiles: [DEFAULT_GEMINI_PROFILE]
+  });
 
-  // Persistence (mocking a real DB)
   useEffect(() => {
-    const saved = localStorage.getItem('bol_history');
-    if (saved) setHistory(JSON.parse(saved));
+    const savedHistory = localStorage.getItem('bol_history');
+    if (savedHistory) setHistory(JSON.parse(savedHistory));
+    
+    const savedConfig = localStorage.getItem('bol_ai_config');
+    if (savedConfig) {
+      setAiConfig(JSON.parse(savedConfig));
+    }
   }, []);
 
   const saveToHistory = (data: HistoryItem) => {
@@ -25,9 +43,26 @@ const App: React.FC = () => {
     localStorage.setItem('bol_history', JSON.stringify(updated));
   };
 
+  const saveBatchToHistory = (items: BOLData[]) => {
+    const historyItems: HistoryItem[] = items.map(item => ({ ...item, status: 'verified' }));
+    const updated = [...historyItems, ...history];
+    setHistory(updated);
+    localStorage.setItem('bol_history', JSON.stringify(updated));
+  };
+
+  const updateConfig = (newConfig: AIConfig) => {
+    setAiConfig(newConfig);
+    localStorage.setItem('bol_ai_config', JSON.stringify(newConfig));
+  };
+
   const handleScanComplete = (data: BOLData) => {
     setActiveBOL(data);
     setView('edit');
+  };
+
+  const handleBatchComplete = (items: BOLData[]) => {
+    saveBatchToHistory(items);
+    setView('history');
   };
 
   const handleSaveBOL = (data: BOLData) => {
@@ -47,7 +82,14 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard history={history} setView={setView} />;
       case 'scan':
-        return <Scanner onScanComplete={handleScanComplete} />;
+        return (
+          <Scanner 
+            onScanComplete={handleScanComplete} 
+            onBatchComplete={handleBatchComplete} 
+            aiConfig={aiConfig} 
+            onConfigUpdate={updateConfig}
+          />
+        );
       case 'edit':
         return activeBOL ? (
           <BOLEditor 
@@ -64,6 +106,8 @@ const App: React.FC = () => {
             onDeleteItem={deleteHistoryItem}
           />
         );
+      case 'settings':
+        return <Settings config={aiConfig} onUpdate={updateConfig} />;
       case 'info':
         return <InfoPage />;
       default:
@@ -93,9 +137,9 @@ const InfoPage = () => (
         <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6">
           <Workflow size={24} />
         </div>
-        <h3 className="text-xl font-bold mb-3">AI Workflow</h3>
+        <h3 className="text-xl font-bold mb-3">Multi-Provider AI</h3>
         <p className="text-slate-600 text-sm leading-relaxed">
-          The pipeline utilizes a Layout-Aware Multimodal approach. Gemini 3 models process spatial coordinates of text segments to accurately classify fields like Shipper and Consignee, which often lack explicit labels.
+          The pipeline utilizes a Layout-Aware abstraction layer. Switch between Gemini, OpenAI, or your own local LLM endpoints seamlessly while maintaining consistent logistics schema output.
         </p>
       </div>
 
@@ -105,7 +149,7 @@ const InfoPage = () => (
         </div>
         <h3 className="text-xl font-bold mb-3">ML Optimization</h3>
         <p className="text-slate-600 text-sm leading-relaxed">
-          Confidence scoring uses entropy analysis from the transformer output. Low-confidence extractions are automatically flagged for manual Human-in-the-loop (HITL) verification to maintain 99.9% data integrity.
+          Confidence scoring uses entropy analysis from transformer tokens. Custom providers can provide their own scoring or rely on our built-in validation engine for data integrity.
         </p>
       </div>
 
@@ -115,7 +159,7 @@ const InfoPage = () => (
         </div>
         <h3 className="text-xl font-bold mb-3">Security & Compliance</h3>
         <p className="text-slate-600 text-sm leading-relaxed">
-          End-to-end encryption for all document blobs. Data is processed in SOC2 Type II compliant environments. Role-based access (RBAC) ensures only authorized logistics operators can verify sensitive trade data.
+          End-to-end encryption for all document blobs. Data is processed in SOC2 Type II compliant environments. Private LLM support allows for air-gapped data processing.
         </p>
       </div>
 
@@ -129,7 +173,7 @@ const InfoPage = () => (
         </p>
       </div>
     </div>
-
+    
     <div className="bg-slate-900 rounded-[2rem] p-8 md:p-12 text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 p-8 opacity-10">
         <Layers size={160} strokeWidth={1} />

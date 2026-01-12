@@ -190,7 +190,7 @@ const Dashboard: React.FC<DashboardProps> = ({ history, setView }) => {
             </tbody>
           </table>
           {history.length === 0 && (
-            <div className="py-12 flex flex-col items-center justify-center text-slate-400 italic">
+            <div className="py-12 flex flex-col items-center justify-center text-slate-400">
               <FileText size={48} className="mb-2 opacity-20" />
               <p>No documents processed yet</p>
             </div>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Save, Download, Trash2, AlertCircle, CheckCircle2, FileJson, Table, ChevronDown, ChevronUp, Plus, Trash, Hash, Phone, Mail, User } from 'lucide-react';
+import { Save, Download, Trash2, AlertCircle, CheckCircle2, FileJson, Table, ChevronDown, ChevronUp, Plus, Trash, Hash, Phone, Mail, User, Layers } from 'lucide-react';
 import { BOLData, BOLField, Party, LineItem } from '../types';
 
 interface BOLEditorProps {
@@ -47,7 +47,7 @@ const BOLEditor: React.FC<BOLEditorProps> = ({ data, onSave, onCancel }) => {
       content += `Reference Codes: ${formData.referenceCodes.value.join(', ')}\n\n`;
       content += `Items:\n`;
       formData.lineItems.value.forEach((item, i) => {
-        content += ` - Line ${i+1}: ${item.qty} ${item.package_type} - ${item.description} (${item.weight_lbs} lbs)\n`;
+        content += ` - Line ${i+1}: ${item.qty} ${item.package_type} - ${item.description} (Weight: ${item.weight_lbs} lbs, NMFC: ${item.nmfc_code}-${item.nmfc_sub}, Class: ${item.freight_class})\n`;
       });
       fileName += ".txt";
       mimeType = "text/plain";
@@ -321,40 +321,52 @@ const BOLEditor: React.FC<BOLEditorProps> = ({ data, onSave, onCancel }) => {
             </div>
             
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-left text-xs">
+              <table className="w-full min-w-[1100px] text-left text-[10px] md:text-xs">
                 <thead>
                   <tr className="bg-slate-50 text-slate-400 font-bold uppercase tracking-wider">
-                    <th className="px-3 py-3 w-16 text-center">Qty</th>
-                    <th className="px-3 py-3 w-16 text-center">Pcs</th>
-                    <th className="px-3 py-3 w-32">Type</th>
-                    <th className="px-3 py-3">Description</th>
-                    <th className="px-3 py-3 w-24 text-center">Weight</th>
-                    <th className="px-3 py-3 w-20 text-center">Hzmt</th>
-                    <th className="px-3 py-3 w-10"></th>
+                    <th className="px-2 py-3 w-12 text-center">Qty</th>
+                    <th className="px-2 py-3 w-12 text-center">Pcs</th>
+                    <th className="px-2 py-3 w-24">Type</th>
+                    <th className="px-2 py-3">Description</th>
+                    <th className="px-2 py-3 w-20 text-center">Weight</th>
+                    <th className="px-2 py-3 w-20 text-center">NMFC</th>
+                    <th className="px-2 py-3 w-16 text-center">Sub</th>
+                    <th className="px-2 py-3 w-16 text-center">Class</th>
+                    <th className="px-2 py-3 w-12 text-center">Hzmt</th>
+                    <th className="px-2 py-3 w-10"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {formData.lineItems.value.map((item, idx) => (
                     <tr key={idx} className="hover:bg-slate-50 group">
-                      <td className="px-2 py-3">
-                        <input type="number" className="w-full border border-slate-200 rounded px-2 py-1 text-center font-bold" value={item.qty} onChange={(e) => handleLineItemChange(idx, 'qty', parseInt(e.target.value))} />
+                      <td className="px-1 py-3">
+                        <input type="number" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center font-bold" value={item.qty} onChange={(e) => handleLineItemChange(idx, 'qty', parseInt(e.target.value))} />
                       </td>
-                      <td className="px-2 py-3">
-                        <input type="number" className="w-full border border-slate-200 rounded px-2 py-1 text-center" value={item.pieces} onChange={(e) => handleLineItemChange(idx, 'pieces', parseInt(e.target.value))} />
+                      <td className="px-1 py-3">
+                        <input type="number" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center" value={item.pieces} onChange={(e) => handleLineItemChange(idx, 'pieces', parseInt(e.target.value))} />
                       </td>
-                      <td className="px-2 py-3">
-                        <input type="text" className="w-full border border-slate-200 rounded px-2 py-1" value={item.package_type} onChange={(e) => handleLineItemChange(idx, 'package_type', e.target.value)} />
+                      <td className="px-1 py-3">
+                        <input type="text" className="w-full border border-slate-200 rounded px-1.5 py-1" value={item.package_type} onChange={(e) => handleLineItemChange(idx, 'package_type', e.target.value)} />
                       </td>
-                      <td className="px-2 py-3">
-                        <input type="text" className="w-full border border-slate-200 rounded px-2 py-1" value={item.description} onChange={(e) => handleLineItemChange(idx, 'description', e.target.value)} />
+                      <td className="px-1 py-3">
+                        <input type="text" className="w-full border border-slate-200 rounded px-1.5 py-1" value={item.description} onChange={(e) => handleLineItemChange(idx, 'description', e.target.value)} />
                       </td>
-                      <td className="px-2 py-3">
-                        <input type="number" className="w-full border border-slate-200 rounded px-2 py-1 text-center" value={item.weight_lbs} onChange={(e) => handleLineItemChange(idx, 'weight_lbs', parseFloat(e.target.value))} />
+                      <td className="px-1 py-3">
+                        <input type="number" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center" value={item.weight_lbs} onChange={(e) => handleLineItemChange(idx, 'weight_lbs', parseFloat(e.target.value))} />
                       </td>
-                      <td className="px-2 py-3 text-center">
+                      <td className="px-1 py-3">
+                        <input type="text" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center font-mono" value={item.nmfc_code} onChange={(e) => handleLineItemChange(idx, 'nmfc_code', e.target.value)} />
+                      </td>
+                      <td className="px-1 py-3">
+                        <input type="text" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center" value={item.nmfc_sub} onChange={(e) => handleLineItemChange(idx, 'nmfc_sub', e.target.value)} />
+                      </td>
+                      <td className="px-1 py-3">
+                        <input type="text" className="w-full border border-slate-200 rounded px-1.5 py-1 text-center font-bold text-blue-600" value={item.freight_class} onChange={(e) => handleLineItemChange(idx, 'freight_class', e.target.value)} />
+                      </td>
+                      <td className="px-1 py-3 text-center">
                         <input type="checkbox" className="w-4 h-4 rounded text-blue-600" checked={item.hazmat} onChange={(e) => handleLineItemChange(idx, 'hazmat', e.target.checked)} />
                       </td>
-                      <td className="px-2 py-3">
+                      <td className="px-1 py-3">
                         <button onClick={() => removeLineItem(idx)} className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash size={14} /></button>
                       </td>
                     </tr>

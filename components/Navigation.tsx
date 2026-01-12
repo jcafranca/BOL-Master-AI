@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutDashboard, Camera, History, Info, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Camera, History, Info, ChevronRight, Settings } from 'lucide-react';
 import { ViewState } from '../types';
 
 interface NavigationProps {
@@ -13,6 +13,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
     { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
     { id: 'scan', label: 'Scan', icon: Camera },
     { id: 'history', label: 'History', icon: History },
+    { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'info', label: 'About', icon: Info },
   ];
 
@@ -76,7 +77,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
             <p className="text-xs text-slate-400 mb-1">Status</p>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">Enterprise API Connected</span>
+              <span className="text-sm font-medium">Enterprise AI Layer Ready</span>
             </div>
           </div>
         </div>

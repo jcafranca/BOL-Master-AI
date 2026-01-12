@@ -6,6 +6,27 @@ export enum BOLType {
   UNKNOWN = 'Unknown'
 }
 
+export enum AIProvider {
+  GEMINI = 'Gemini',
+  OPENAI = 'OpenAI',
+  CUSTOM = 'Custom'
+}
+
+export interface ProviderProfile {
+  id: string;
+  name: string;
+  provider: AIProvider;
+  model: string;
+  endpoint: string;
+  apiKey?: string;
+  isDefault?: boolean;
+}
+
+export interface AIConfig {
+  activeProfileId: string;
+  profiles: ProviderProfile[];
+}
+
 export interface Party {
   name: string;
   address1: string;
@@ -72,7 +93,7 @@ export interface BOLData {
   rawImage?: string; // base64
 }
 
-export type ViewState = 'dashboard' | 'scan' | 'history' | 'edit' | 'info';
+export type ViewState = 'dashboard' | 'scan' | 'history' | 'edit' | 'info' | 'settings';
 
 export interface HistoryItem extends BOLData {
   status: 'draft' | 'verified' | 'archived';
